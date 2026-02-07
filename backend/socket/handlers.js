@@ -1,3 +1,7 @@
+import geminiAI from '../services/geminiAI.js';
+import pineconeService from '../services/pineconeService.js';
+import {addMessage, getChatMessages} from '../routes/axiomChat.js';
+
 export function setupSocketHandlers(io)
 {
     // Store secondary camera mappings
@@ -201,6 +205,123 @@ export function setupSocketHandlers(io)
         socket.on('disconnect', () =>
         {
             console.log(`User disconnected: ${socket.id}`);
+        });
+
+        // ========================================
+        // Axiom AI Chat Handlers
+        // ========================================
+
+        // Handle AI chat messages
+        socket.on('ai-message', async (data) =>
+        {
+            try
+            {
+                const {chatId, content, userId='anonymous'}=data;
+
+                if (!chatId||!content)
+                {
+                    socket.emit('ai-error', {error: 'Missing chatId or content'});
+                    return;
+                }
+
+                console.log(`📨 AI message from ${userId} in chat ${chatId}`);
+
+                // Add user message
+                const userMessage=addMessage(chatId, {
+                    role: 'user',
+                    content,
+                    userId
+                });
+
+                // Generate embedding for user message
+                const userVector=await geminiAI.generateEmbedding(content);
+
+                // Store in Pinecone
+                await pineconeService.createMemory(
+                    userVector,
+                    {
+                        chatId,
+                        userId,
+                        role: 'user',
+                        text: content
+                    },
+                    userMessage.id
+                );
+
+                // Query long-term memory (similar past conversations)
+                const memories=await pineconeService.queryMemory(
+                    userVector,
+                    3,
+                    {chatId}
+                );
+
+                // Get recent chat history (short-term memory)
+                const chatHistory=getChatMessages(chatId).slice(-10);
+
+                // Format context for AI
+                const memoryContext=memories.length>0
+                    ? `\n\nRelevant past context:\n${memories.map(m => m.metadata?.text||'').join('\n')}`
+                    :'';
+
+                const conversationHistory=chatHistory.map(msg => ({
+                    role: msg.role,
+                    content: msg.content
+                }));
+
+                // Add memory context as system message
+                if (memoryContext)
+                {
+                    conversationHistory.unshift({
+                        role: 'user',
+                        content: `Here's some relevant context from previous conversations:${memoryContext}\n\nNow, let's continue our current conversation.`
+                    });
+                }
+
+                // Generate AI response
+                const aiResponse=await geminiAI.generateResponse(
+                    conversationHistory,
+                    "You are Aurora, a helpful and knowledgeable AI assistant. Be conversational, friendly, and provide clear, accurate information."
+                );
+
+                // Add AI message
+                const aiMessage=addMessage(chatId, {
+                    role: 'model',
+                    content: aiResponse,
+                    userId: 'aurora'
+                });
+
+                // Generate embedding for AI response
+                const aiVector=await geminiAI.generateEmbedding(aiResponse);
+
+                // Store AI response in Pinecone
+                await pineconeService.createMemory(
+                    aiVector,
+                    {
+                        chatId,
+                        userId,
+                        role: 'model',
+                        text: aiResponse
+                    },
+                    aiMessage.id
+                );
+
+                // Send response back to client
+                socket.emit('ai-response', {
+                    content: aiResponse,
+                    chatId,
+                    messageId: aiMessage.id,
+                    timestamp: aiMessage.timestamp
+                });
+
+                console.log(`✅ AI response sent for chat ${chatId}`);
+            } catch (error)
+            {
+                console.error('AI message error:', error);
+                socket.emit('ai-error', {
+                    error: 'Failed to process message',
+                    details: error.message
+                });
+            }
         });
     });
 }
