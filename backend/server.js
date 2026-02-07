@@ -21,6 +21,19 @@ import cpQuestionsRoutes from './routes/cpQuestions.js';
 import cpAiQuestionsRoutes from './routes/cpAiQuestions.js';
 import aiInterviewRoutes from './routes/aiInterview.js';
 import axiomChatRoutes from './routes/axiomChat.js';
+import authRoutes from './routes/auth.js';
+import portalAuthRoutes from './routes/portalAuth.js';
+import resumeRoutes from './routes/resume.js';
+import hiringRoutes from './routes/hiring.js';
+import companiesRoutes from './routes/companies.js';
+import applicationsRoutes from './routes/applications.js';
+import challengesRoutes from './routes/challenges.js';
+import liveInterviewRoutes from './routes/liveInterview.js';
+import jobsRoutes from './routes/jobs.js';
+import scoresRoutes from './routes/scores.js';
+import aiAnalysisRoutes from './routes/aiAnalysis.js';
+import contestsRoutes from './routes/contests.js';
+import badgesRoutes from './routes/badges.js';
 import {setupSocketHandlers} from './socket/handlers.js';
 
 const app=express();
@@ -63,6 +76,25 @@ app.use('/api/cp/questions', cpQuestionsRoutes);
 app.use('/api/cp/ai-questions', cpAiQuestionsRoutes);
 app.use('/api/ai-interview', aiInterviewRoutes);
 app.use('/api/axiom', axiomChatRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/portal-auth', portalAuthRoutes);
+app.use('/api/resume', resumeRoutes);
+app.use('/api/hiring', hiringRoutes);
+app.use('/api/companies', companiesRoutes);
+app.use('/api/applications', applicationsRoutes);
+app.use('/api/challenges', challengesRoutes);
+app.use('/api/live-interview', liveInterviewRoutes);
+app.use('/api/jobs', jobsRoutes);
+app.use('/api/scores', scoresRoutes);
+app.use('/api/ai-analysis', aiAnalysisRoutes);
+app.use('/api/contests', contestsRoutes);
+app.use('/api/badges', badgesRoutes);
+
+// Serve static files for resume uploads
+import path from 'path';
+import {fileURLToPath} from 'url';
+const __dirname=path.dirname(fileURLToPath(import.meta.url));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Health check
 app.get('/api/health', (req, res) =>
@@ -73,7 +105,7 @@ app.get('/api/health', (req, res) =>
 // Setup Socket.IO handlers
 setupSocketHandlers(io);
 
-const PORT=process.env.PORT||5000;
+const PORT=process.env.PORT || 8080;
 httpServer.listen(PORT, () =>
 {
     console.log(`🚀 Backend running on http://localhost:${PORT}`);

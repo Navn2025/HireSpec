@@ -113,6 +113,80 @@
 }
 
 .control-btn.off {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: #ef4444;
+  background: rgba(115, 115, 115, 0.2);
+  border-color: #737373;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .video-panel {
+    min-height: 300px;
+  }
+
+  .video-container {
+    min-height: 150px;
+  }
+
+  .videos {
+    padding: 12px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .video-panel {
+    min-height: 250px;
+  }
+
+  .video-container {
+    min-height: 120px;
+    aspect-ratio: 16/9;
+  }
+
+  .videos {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .video-header {
+    padding: 10px 12px;
+  }
+
+  .video-header h3 {
+    font-size: 14px;
+  }
+
+  .video-controls {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  .control-btn {
+    padding: 8px;
+    font-size: 16px;
+  }
+
+  .video-label {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .video-panel {
+    min-height: 200px;
+  }
+
+  .video-container {
+    min-height: 100px;
+  }
+
+  .video-header {
+    padding: 8px 10px;
+  }
+
+  .control-btn {
+    padding: 6px;
+    font-size: 14px;
+  }
 }

@@ -76,11 +76,18 @@ Please analyze and provide a JSON response with the following structure (return 
             let cleanText=responseText.trim();
             cleanText=cleanText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
             const parsed=JSON.parse(cleanText);
+            const rawComplexity=parsed.complexity||{};
             return {
                 mistakes: Array.isArray(parsed.mistakes)? parsed.mistakes:[],
                 suggestions: Array.isArray(parsed.suggestions)? parsed.suggestions:[],
                 qualityScore: typeof parsed.qualityScore==='number'? parsed.qualityScore:70,
-                complexity: parsed.complexity||{timeComplexity: 'Unknown', spaceComplexity: 'Unknown', explanation: 'Complexity analysis not available'},
+                complexity: {
+                    time: rawComplexity.timeComplexity||rawComplexity.time||'Unknown',
+                    space: rawComplexity.spaceComplexity||rawComplexity.space||'Unknown',
+                    timeComplexity: rawComplexity.timeComplexity||rawComplexity.time||'Unknown',
+                    spaceComplexity: rawComplexity.spaceComplexity||rawComplexity.space||'Unknown',
+                    explanation: rawComplexity.explanation||'Complexity analysis not available'
+                },
                 bestPractices: Array.isArray(parsed.bestPractices)? parsed.bestPractices:[],
                 improvements: Array.isArray(parsed.improvements)? parsed.improvements:[]
             };
@@ -91,7 +98,7 @@ Please analyze and provide a JSON response with the following structure (return 
                 mistakes: [],
                 suggestions: [{category: 'general', title: 'AI Analysis', description: responseText.substring(0, 500), codeExample: null}],
                 qualityScore: 70,
-                complexity: {timeComplexity: 'Unknown', spaceComplexity: 'Unknown', explanation: 'Analysis in progress'},
+                complexity: {time: 'Unknown', space: 'Unknown', timeComplexity: 'Unknown', spaceComplexity: 'Unknown', explanation: 'Analysis in progress'},
                 bestPractices: [],
                 improvements: ['Review the AI feedback for detailed insights']
             };
@@ -118,7 +125,7 @@ Please analyze and provide a JSON response with the following structure (return 
         return {
             mistakes, suggestions,
             qualityScore: executionResult&&!executionResult.hasError? 75:50,
-            complexity: {timeComplexity: 'Analysis not available', spaceComplexity: 'Analysis not available', explanation: 'Connect to Groq API for detailed complexity analysis'},
+            complexity: {time: 'Analysis not available', space: 'Analysis not available', timeComplexity: 'Analysis not available', spaceComplexity: 'Analysis not available', explanation: 'Connect to Groq API for detailed complexity analysis'},
             bestPractices: [{title: 'Code Documentation', description: 'Add comments to explain complex logic', applied: code.includes('//')||code.includes('#')}],
             improvements: ['Connect Groq API key for detailed AI-powered analysis', 'Review code for syntax and logic errors', 'Consider adding error handling']
         };

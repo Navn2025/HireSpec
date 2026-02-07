@@ -8,6 +8,106 @@ const proctoringEvents=new Map();
 // In-memory storage for active sessions
 const activeSessions=new Map();
 
+// In-memory storage for identity verification results
+const identityVerifications=new Map();
+
+// Python auth backend URL for face verification
+const AUTH_BACKEND_URL=process.env.AUTH_BACKEND_URL||'http://localhost:5001';
+
+// Verify user identity during interview
+router.post('/verify-identity', async (req, res) =>
+{
+    const {interviewId, userId, image}=req.body;
+
+    if (!userId||!image)
+    {
+        return res.status(400).json({
+            success: false,
+            verified: false,
+            message: 'Missing userId or image'
+        });
+    }
+
+    try
+    {
+        // Call Python backend for face verification
+        const response=await fetch(`${AUTH_BACKEND_URL}/api/auth/verify-identity`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                user_id: userId,
+                image: image,
+                strict: true
+            })
+        });
+
+        const result=await response.json();
+
+        // Store verification result
+        if (!identityVerifications.has(interviewId))
+        {
+            identityVerifications.set(interviewId, []);
+        }
+
+        const verificationRecord={
+            timestamp: new Date(),
+            userId,
+            verified: result.verified,
+            score: result.score,
+            liveness: result.liveness
+        };
+
+        identityVerifications.get(interviewId).push(verificationRecord);
+
+        // If verification failed, log as proctoring event
+        if (!result.verified)
+        {
+            if (!proctoringEvents.has(interviewId))
+            {
+                proctoringEvents.set(interviewId, []);
+            }
+
+            proctoringEvents.get(interviewId).push({
+                eventType: 'identity_mismatch',
+                severity: 'critical',
+                details: `Face does not match registered user. Score: ${result.score?.toFixed(3)||'N/A'}`,
+                timestamp: new Date()
+            });
+        }
+
+        res.json({
+            success: true,
+            verified: result.verified,
+            score: result.score,
+            liveness: result.liveness,
+            reason: result.reason
+        });
+    } catch (error)
+    {
+        console.error('Identity verification error:', error);
+        res.status(503).json({
+            success: false,
+            verified: false,
+            message: 'Identity verification service unavailable'
+        });
+    }
+});
+
+// Get identity verification history for an interview
+router.get('/:interviewId/identity-checks', (req, res) =>
+{
+    const verifications=identityVerifications.get(req.params.interviewId)||[];
+    const passedCount=verifications.filter(v => v.verified).length;
+    const failedCount=verifications.filter(v => !v.verified).length;
+
+    res.json({
+        total: verifications.length,
+        passed: passedCount,
+        failed: failedCount,
+        verifications
+    });
+});
+
 // Log proctoring event
 router.post('/event', (req, res) =>
 {

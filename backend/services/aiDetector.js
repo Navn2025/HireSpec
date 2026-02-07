@@ -26,8 +26,25 @@ class AIDetector
             finalScore=Math.round(heuristicResult.score*0.45+behaviorResult.score*0.55);
         }
         const verdict=this.getVerdict(finalScore);
+
+        // Build breakdown for frontend display
+        const breakdown={
+            'Heuristic': heuristicResult.score,
+            'Behavior': behaviorResult.score,
+        };
+        if (aiAnalysisResult) breakdown['AI Analysis']=aiAnalysisResult.score;
+
+        // Combine all signals for frontend display
+        const allSignals=[
+            ...heuristicResult.signals.map(s => s.signal? `${s.signal}: ${s.detail}`:(typeof s==='string'? s:JSON.stringify(s))),
+            ...behaviorResult.signals.map(s => s.signal? `${s.signal}: ${s.detail}`:(typeof s==='string'? s:JSON.stringify(s))),
+            ...(aiAnalysisResult?.signals||[])
+        ];
+
         return {
             finalScore, verdict: verdict.label, confidence: verdict.confidence, color: verdict.color,
+            breakdown,
+            signals: allSignals,
             details: {
                 heuristic: {score: heuristicResult.score, signals: heuristicResult.signals},
                 behavior: {score: behaviorResult.score, signals: behaviorResult.signals},

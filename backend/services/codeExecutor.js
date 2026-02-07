@@ -107,14 +107,13 @@ class CodeExecutor
     async executeJavaScript(code, input)
     {
         const wrappedCode=`
-(async () => {
-  const readline = require('readline');
-  const inputs = ${JSON.stringify(input.split('\n'))};
-  let inputIndex = 0;
-  global.input = () => inputs[inputIndex++] || '';
-  ${code}
-})();`;
-        const filename=`temp_${uuidv4()}.js`;
+const inputs = ${JSON.stringify(input.split('\n'))};
+let inputIndex = 0;
+globalThis.input = () => inputs[inputIndex++] || '';
+
+${code}
+`;
+        const filename=`temp_${uuidv4()}.cjs`;
         const filepath=path.join(this.tempDir, filename);
         try
         {

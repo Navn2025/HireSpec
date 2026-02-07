@@ -12,6 +12,7 @@ class ProctoringService
         this.suspicionScore=0;
         this.violations=[];
         this.faceDetectionInterval=null;
+        this.identityVerificationInterval=null;
         this.tabSwitchCount=0;
         this.copyPasteAttempts=0;
         this.fullscreenExitCount=0;
@@ -22,6 +23,12 @@ class ProctoringService
         this.onViolation=null;
         this.socketService=null;
         this.isTerminated=false;
+
+        // Identity verification tracking
+        this.registeredUserId=null;
+        this.identityVerificationCount=0;
+        this.identityFailedCount=0;
+        this.lastIdentityCheck=null;
 
         // AI detection tracking
         this.typingPatterns=[];
@@ -70,8 +77,12 @@ class ProctoringService
     }
 
     // Start monitoring
-    async startMonitoring(videoElement, interviewId, onViolationCallback, socketService=null)
+    async startMonitoring(videoElement, interviewId, onViolationCallback, socketService=null, userId=null, options={})
     {
+        // Extract options
+        const {disableFaceDetection=false}=options;
+        this.faceDetectionDisabled=this.faceDetectionDisabled||disableFaceDetection;
+
         if (!this.isInitialized)
         {
             const initialized=await this.initialize();
@@ -89,6 +100,7 @@ class ProctoringService
         this.isMonitoring=true;
         this.onViolation=onViolationCallback;
         this.socketService=socketService;
+        this.registeredUserId=userId;
 
         // Reset counters
         this.suspicionScore=0;
@@ -100,11 +112,15 @@ class ProctoringService
         this.multipleFacesCount=0;
         this.lookingAwayCount=0;
         this.eyesClosedCount=0;
+        this.identityVerificationCount=0;
+        this.identityFailedCount=0;
+        this.lastIdentityCheck=null;
 
         console.log('🛡️ Starting proctoring monitoring...');
         console.log('Video element:', videoElement);
         console.log('Video ready state:', videoElement?.readyState);
         console.log('Interview ID:', interviewId);
+        console.log('Registered User ID:', userId);
 
         // Wait for video to be ready
         if (videoElement&&videoElement.readyState<2)
@@ -132,7 +148,19 @@ class ProctoringService
             this.startFaceDetection();
         } else
         {
-            console.warn('⚠️ Face detection disabled - models not loaded');
+            console.warn('⚠️ Face detection disabled'+(disableFaceDetection? ' (by configuration)':' - models not loaded'));
+        }
+
+        // Start identity verification if userId is provided and face detection is enabled
+        if (userId && !this.faceDetectionDisabled)
+        {
+            this.startIdentityVerification();
+        } else if (this.faceDetectionDisabled)
+        {
+            console.warn('⚠️ Identity verification disabled - face detection is disabled');
+        } else
+        {
+            console.warn('⚠️ Identity verification disabled - no userId provided');
         }
 
         // Monitor tab visibility
@@ -357,6 +385,155 @@ class ProctoringService
         return {
             x: sumX/landmarks.length,
             y: sumY/landmarks.length
+        };
+    }
+
+    // Capture current video frame as base64
+    captureFrameAsBase64()
+    {
+        if (!this.videoElement||this.videoElement.readyState<2)
+        {
+            return null;
+        }
+
+        try
+        {
+            const canvas=document.createElement('canvas');
+            canvas.width=this.videoElement.videoWidth||640;
+            canvas.height=this.videoElement.videoHeight||480;
+            const ctx=canvas.getContext('2d');
+            ctx.drawImage(this.videoElement, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/jpeg', 0.8);
+        } catch (error)
+        {
+            console.error('Error capturing frame:', error);
+            return null;
+        }
+    }
+
+    // Start identity verification - runs every 30 seconds
+    startIdentityVerification()
+    {
+        if (this.identityVerificationInterval)
+        {
+            clearInterval(this.identityVerificationInterval);
+        }
+
+        console.log('🔐 Starting identity verification for user:', this.registeredUserId);
+
+        // Run initial verification after 5 seconds
+        setTimeout(() => this.performIdentityVerification(), 5000);
+
+        // Then run every 30 seconds
+        this.identityVerificationInterval=setInterval(async () =>
+        {
+            if (!this.isMonitoring||!this.registeredUserId) return;
+            await this.performIdentityVerification();
+        }, 30000); // Check every 30 seconds
+    }
+
+    // Perform single identity verification
+    async performIdentityVerification()
+    {
+        if (!this.isMonitoring||!this.registeredUserId||!this.videoElement)
+        {
+            return;
+        }
+
+        console.log('🔐 Performing identity verification check...');
+
+        try
+        {
+            const imageBase64=this.captureFrameAsBase64();
+            if (!imageBase64)
+            {
+                console.warn('Could not capture frame for identity verification');
+                return;
+            }
+
+            // Get the API URL - try both Python backend and Node backend
+            const authBackendUrl=import.meta.env.VITE_AUTH_API_URL||'http://localhost:5001';
+            const nodeBackendUrl=import.meta.env.VITE_API_URL||'http://localhost:8080';
+
+            // Try Python backend first (direct face verification)
+            let response;
+            try
+            {
+                response=await fetch(`${authBackendUrl}/api/auth/verify-identity`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: this.registeredUserId,
+                        image: imageBase64,
+                        strict: true
+                    })
+                });
+            } catch (err)
+            {
+                // If Python backend fails, try Node backend proxy
+                console.log('Python backend unavailable, trying Node backend...');
+                response=await fetch(`${nodeBackendUrl}/api/proctoring/verify-identity`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        interviewId: this.interviewId,
+                        userId: this.registeredUserId,
+                        image: imageBase64
+                    })
+                });
+            }
+
+            const result=await response.json();
+
+            this.identityVerificationCount++;
+            this.lastIdentityCheck=new Date();
+
+            if (result.verified)
+            {
+                console.log(`✅ Identity verified! Score: ${result.score?.toFixed(3)}`);
+            } else
+            {
+                console.warn(`⚠️ Identity verification FAILED! Score: ${result.score?.toFixed(3)}, Reason: ${result.reason}`);
+                this.identityFailedCount++;
+
+                // Report violation for identity mismatch
+                this.reportViolation(
+                    'identity_mismatch',
+                    'critical',
+                    `Face does not match registered user (Score: ${result.score?.toFixed(3)||'N/A'})`
+                );
+
+                // If multiple identity failures, escalate
+                if (this.identityFailedCount>=2)
+                {
+                    this.reportViolation(
+                        'multiple_identity_failures',
+                        'critical',
+                        `Multiple identity verification failures (${this.identityFailedCount} times) - Possible impersonation`
+                    );
+                }
+            }
+
+            return result;
+        } catch (error)
+        {
+            console.error('Identity verification error:', error);
+            // Don't report as violation - could be network issue
+            return null;
+        }
+    }
+
+    // Get identity verification status
+    getIdentityVerificationStatus()
+    {
+        return {
+            userId: this.registeredUserId,
+            totalChecks: this.identityVerificationCount,
+            failedChecks: this.identityFailedCount,
+            lastCheck: this.lastIdentityCheck,
+            passRate: this.identityVerificationCount>0
+                ? ((this.identityVerificationCount-this.identityFailedCount)/this.identityVerificationCount*100).toFixed(1)+'%'
+                :'N/A'
         };
     }
 
@@ -816,6 +993,12 @@ class ProctoringService
             this.faceDetectionInterval=null;
         }
 
+        if (this.identityVerificationInterval)
+        {
+            clearInterval(this.identityVerificationInterval);
+            this.identityVerificationInterval=null;
+        }
+
         // Cleanup event listeners
         if (this.cleanupFunctions)
         {
@@ -844,6 +1027,11 @@ class ProctoringService
             fullscreenExitCount: this.fullscreenExitCount,
             noFaceDetectedCount: this.noFaceDetectedCount,
             multipleFacesCount: this.multipleFacesCount,
+            identityVerificationCount: this.identityVerificationCount,
+            identityFailedCount: this.identityFailedCount,
+            identityPassRate: this.identityVerificationCount>0
+                ? ((this.identityVerificationCount-this.identityFailedCount)/this.identityVerificationCount*100).toFixed(1)+'%'
+                :'N/A'
         };
     }
 }

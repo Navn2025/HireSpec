@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {createInterview} from '../services/api';
+import {useAuth} from '../contexts/AuthContext';
 import
 {
     BriefcaseIcon,
@@ -21,7 +22,12 @@ import './Home.css';
 function Home()
 {
     const navigate=useNavigate();
-    const [mode, setMode]=useState('recruiter');
+    const {user, isAuthenticated}=useAuth();
+
+    // Check if user is a recruiter/admin
+    const isRecruiter=user?.role==='admin'||user?.role==='company_admin'||user?.role==='company_hr';
+
+    const [mode, setMode]=useState(isRecruiter? 'recruiter':'practice');
     const [candidateName, setCandidateName]=useState('');
     const [recruiterName, setRecruiterName]=useState('');
     const [loading, setLoading]=useState(false);
@@ -82,24 +88,47 @@ function Home()
 
                     {/* Mode Cards */}
                     <div className="mode-cards">
-                        {/* Recruiter Mode */}
-                        <div className={`mode-card ${mode==='recruiter'? 'active':''}`}
-                            onClick={() => setMode('recruiter')}>
-                            <div className="mode-card-header">
-                                <div className="mode-icon">
-                                    <BriefcaseIcon size={28} />
+                        {/* Recruiter Mode - Only visible to recruiters */}
+                        {isRecruiter&&(
+                            <div className={`mode-card ${mode==='recruiter'? 'active':''}`}
+                                onClick={() => setMode('recruiter')}>
+                                <div className="mode-card-header">
+                                    <div className="mode-icon">
+                                        <BriefcaseIcon size={28} />
+                                    </div>
+                                    <div className="mode-badge">Live</div>
                                 </div>
-                                <div className="mode-badge">Live</div>
+                                <h3>Quick Interview</h3>
+                                <p>Start a quick interview session now</p>
+                                <ul className="feature-list">
+                                    <li><CheckIcon size={16} /><span>Real-time video calling</span></li>
+                                    <li><CheckIcon size={16} /><span>Collaborative code editor</span></li>
+                                    <li><CheckIcon size={16} /><span>AI-powered proctoring</span></li>
+                                    <li><CheckIcon size={16} /><span>Automated reports</span></li>
+                                </ul>
                             </div>
-                            <h3>Recruiter Interview</h3>
-                            <p>Live video interview with anti-cheating detection</p>
-                            <ul className="feature-list">
-                                <li><CheckIcon size={16} /><span>Real-time video calling</span></li>
-                                <li><CheckIcon size={16} /><span>Collaborative code editor</span></li>
-                                <li><CheckIcon size={16} /><span>AI-powered proctoring</span></li>
-                                <li><CheckIcon size={16} /><span>Automated reports</span></li>
-                            </ul>
-                        </div>
+                        )}
+
+                        {/* Schedule Live Interview - Only visible to recruiters */}
+                        {isRecruiter&&(
+                            <div className="mode-card live-card"
+                                onClick={() => navigate('/create-live-interview')}>
+                                <div className="mode-card-header">
+                                    <div className="mode-icon">
+                                        <VideoIcon size={28} />
+                                    </div>
+                                    <div className="mode-badge new">New</div>
+                                </div>
+                                <h3>Schedule Live Interview</h3>
+                                <p>Create interview session with dual camera support</p>
+                                <ul className="feature-list">
+                                    <li><CheckIcon size={16} /><span>Dual camera detection</span></li>
+                                    <li><CheckIcon size={16} /><span>Screen sharing</span></li>
+                                    <li><CheckIcon size={16} /><span>Live coding environment</span></li>
+                                    <li><CheckIcon size={16} /><span>Built-in chat & timer</span></li>
+                                </ul>
+                            </div>
+                        )}
 
                         {/* Practice Mode */}
                         <div className={`mode-card ${mode==='practice'? 'active':''}`}
@@ -162,12 +191,12 @@ function Home()
                     {/* Interview Setup Form */}
                     <div className="setup-form">
                         <div className="setup-form-header">
-                            <h2>{mode==='recruiter'? 'Start  Live Interview':'Start Practice Session'}</h2>
+                            <h2>{mode==='recruiter'&&isRecruiter? 'Start Live Interview':'Start Practice Session'}</h2>
                             <p>Enter your details to begin</p>
                         </div>
 
                         <div className="form-group">
-                            <label className="label">Candidate Name</label>
+                            <label className="label">{isRecruiter&&mode==='recruiter'? 'Candidate Name':'Your Name'}</label>
                             <input
                                 type="text"
                                 className="input"
@@ -177,7 +206,7 @@ function Home()
                             />
                         </div>
 
-                        {mode==='recruiter'&&(
+                        {mode==='recruiter'&&isRecruiter&&(
                             <div className="form-group">
                                 <label className="label">Recruiter Name</label>
                                 <input
@@ -192,11 +221,11 @@ function Home()
 
                         <button
                             className="btn btn-primary btn-large"
-                            onClick={mode==='recruiter'? handleStartInterview:handlePracticeMode}
+                            onClick={mode==='recruiter'&&isRecruiter? handleStartInterview:handlePracticeMode}
                             disabled={loading}
                         >
                             <RocketIcon size={20} />
-                            {loading? 'Creating...':mode==='recruiter'? 'Start Interview':'Start Practice'}
+                            {loading? 'Creating...':mode==='recruiter'&&isRecruiter? 'Start Interview':'Start Practice'}
                         </button>
                     </div>
 

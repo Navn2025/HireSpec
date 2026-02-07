@@ -2,8 +2,8 @@ import {useState, useEffect, useCallback} from 'react';
 import {io} from 'socket.io-client';
 import './ProctorDashboard.css';
 
-const API_URL=import.meta.env.VITE_API_URL||'http://localhost:5000';
-const SOCKET_URL=import.meta.env.VITE_SOCKET_URL||'http://localhost:5000';
+const API_URL=import.meta.env.VITE_API_URL||'http://localhost:8080';
+const SOCKET_URL=import.meta.env.VITE_SOCKET_URL||'http://localhost:8080';
 
 function ProctorDashboard()
 {
@@ -81,16 +81,16 @@ function ProctorDashboard()
 
     const getScoreColor=(score) =>
     {
-        if (score>=80) return '#10b981';
-        if (score>=60) return '#f59e0b';
-        return '#ef4444';
+        if (score>=80) return '#d4d4d4';
+        if (score>=60) return '#a3a3a3';
+        return '#737373';
     };
 
     const getScoreStatus=(score) =>
     {
-        if (score>=80) return {text: 'Good', icon: '✅', color: '#10b981'};
-        if (score>=60) return {text: 'Warning', icon: '⚠️', color: '#f59e0b'};
-        return {text: 'Risk', icon: '❌', color: '#ef4444'};
+        if (score>=80) return {text: 'Good', icon: '✅', color: '#d4d4d4'};
+        if (score>=60) return {text: 'Warning', icon: '⚠️', color: '#a3a3a3'};
+        return {text: 'Risk', icon: '❌', color: '#737373'};
     };
 
     const formatDuration=(minutes) =>
@@ -104,10 +104,10 @@ function ProctorDashboard()
     const getSeverityBadge=(severity) =>
     {
         const colors={
-            low: '#60a5fa',
-            medium: '#f59e0b',
-            high: '#ef4444',
-            critical: '#dc2626',
+            low: '#d4d4d4',
+            medium: '#a3a3a3',
+            high: '#737373',
+            critical: '#525252',
         };
         return colors[severity]||'#64748b';
     };

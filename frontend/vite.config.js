@@ -9,4 +9,13 @@ export default defineConfig({
     define: {
         global: 'globalThis',
     },
+    resolve: {
+        alias: {
+            events: 'events',
+            util: 'util',
+        },
+    },
+    optimizeDeps: {
+        include: ['socket.io-client'],
+    },
 })

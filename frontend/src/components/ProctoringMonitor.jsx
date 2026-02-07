@@ -2,7 +2,7 @@ import {useState, useEffect} from 'react';
 import {ShieldIcon, NoFaceIcon, UsersIcon, EyeIcon, SleepIcon, TabSwitchIcon, FullscreenExitIcon, ClipboardIcon, RobotIcon, DocumentIcon, AlertIcon, CheckCircleIcon, XIcon, UserIcon, PhoneIcon, RecordIcon} from './Icons';
 import './ProctoringMonitor.css';
 
-function ProctoringMonitor({interviewId, events, suspicionScore=0, integrityScore: propIntegrityScore})
+function ProctoringMonitor({interviewId, events, suspicionScore=0, integrityScore: propIntegrityScore, disableFaceDetection=false})
 {
     const [integrityScore, setIntegrityScore]=useState(100);
     const [alertCount, setAlertCount]=useState(0);
@@ -54,18 +54,18 @@ function ProctoringMonitor({interviewId, events, suspicionScore=0, integrityScor
 
     const getScoreColor=() =>
     {
-        if (integrityScore>=80) return '#10b981';
-        if (integrityScore>=60) return '#f59e0b';
-        return '#ef4444';
+        if (integrityScore>=80) return '#d4d4d4';
+        if (integrityScore>=60) return '#a3a3a3';
+        return '#737373';
     };
 
     const getSeverityBadge=(severity) =>
     {
         const colors={
-            low: '#60a5fa',
-            medium: '#f59e0b',
-            high: '#ef4444',
-            critical: '#dc2626',
+            low: '#d4d4d4',
+            medium: '#a3a3a3',
+            high: '#737373',
+            critical: '#525252',
         };
         return colors[severity]||'#64748b';
     };
@@ -118,7 +118,7 @@ function ProctoringMonitor({interviewId, events, suspicionScore=0, integrityScor
                 </div>
                 <div className="stat">
                     <div className="stat-label">Critical</div>
-                    <div className="stat-value" style={{color: criticalAlerts>0? '#ef4444':'#10b981'}}>
+                    <div className="stat-value" style={{color: criticalAlerts>0? '#737373':'#d4d4d4'}}>
                         {criticalAlerts}
                     </div>
                 </div>
@@ -133,18 +133,15 @@ function ProctoringMonitor({interviewId, events, suspicionScore=0, integrityScor
             <div className="monitoring-features">
                 <div className="features-label">Active Monitoring</div>
                 <div className="feature-badges">
-                    <span className="feature-badge" title="Face detection and tracking"><UserIcon size={14} /> Face</span>
-                    <span className="feature-badge" title="Eye tracking and gaze detection"><EyeIcon size={14} /> Eyes</span>
                     <span className="feature-badge" title="AI-generated code detection"><RobotIcon size={14} /> AI</span>
                     <span className="feature-badge" title="Tab and window monitoring"><TabSwitchIcon size={14} /> Focus</span>
-                    <span className="feature-badge" title="Secondary camera (phone)"><PhoneIcon size={14} /> Camera 2</span>
                 </div>
             </div>
 
             <div className="events-list">
                 <div className="events-header">
                     Recent Events
-                    {newEventPulse&&<span className="live-indicator"><RecordIcon size={12} color="#ef4444" /> LIVE</span>}
+                    {newEventPulse&&<span className="live-indicator"><RecordIcon size={12} color="#a3a3a3" /> LIVE</span>}
                 </div>
 
                 {events.length===0? (

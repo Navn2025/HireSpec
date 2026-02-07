@@ -35,8 +35,8 @@
 }
 
 .status.disconnected {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  background: rgba(115, 115, 115, 0.2);
+  color: #737373;
 }
 
 .connection-methods {
@@ -220,7 +220,7 @@
 .phone-instructions .warning {
   margin: 12px 0 0 0;
   padding: 8px;
-  background: #ef4444;
+  background: #737373;
   border-radius: 4px;
   text-align: center;
   font-size: 13px;

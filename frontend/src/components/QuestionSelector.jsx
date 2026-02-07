@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {DocumentIcon, BookIcon, RobotIcon, CheckCircleIcon, RefreshIcon, FolderIcon, SparklesIcon, LoadingIcon} from './Icons';
 import './QuestionSelector.css';
 
-const API_URL=import.meta.env.VITE_API_URL||'http://localhost:5000';
+const API_URL=import.meta.env.VITE_API_URL||'http://localhost:8080';
 
 function QuestionSelector({onQuestionSelected, onClose})
 {

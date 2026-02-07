@@ -1,113 +1,95 @@
-import {GoogleGenAI} from '@google/genai';
+import axios from 'axios';
 
-// Lazy initialization to ensure dotenv is loaded first
-let client=null;
-function getClient()
+class GroqAIService
 {
-    const apiKey=process.env.GEMINI_API_KEY;
-    if (!apiKey)
+    constructor()
     {
-        console.warn('⚠️  GEMINI_API_KEY not found in environment variables');
-        console.warn('   Get your free API key from https://makersuite.google.com/app/apikey');
+        this.apiKey=process.env.GROQ_API_KEY;
+        if (this.apiKey)
+        {
+            console.log('✅ Groq AI initialized');
+        } else
+        {
+            console.warn('⚠️ GROQ_API_KEY not found in environment variables');
+        }
+    }
+
+    /**
+     * Generate embedding vector
+     * Note: Groq does not provide embeddings API, return null
+     * @param {string} text
+     * @returns {Array<number>|null}
+     */
+    async generateEmbedding(text)
+    {
+        // Groq does not support embeddings - return null
+        // Embeddings will be skipped in the chat flow
+        console.log('ℹ️ Embeddings not supported with Groq, skipping');
         return null;
     }
 
-    if (!client)
-    {
-        client=new GoogleGenAI({apiKey});
-        console.log('✅ Gemini AI initialized');
-    }
-    return client;
-}
-
-class GeminiAIService
-{
-    async generateResponse(messages, systemInstruction="You are Aurora, a helpful AI assistant.")
+    /**
+     * Generate AI response for conversation
+     * @param {Array} messages - Array of {role, content}
+     * @param {string} systemPrompt - System instruction
+     * @returns {string|null}
+     */
+    async generateResponse(messages, systemPrompt='You are a helpful AI assistant.')
     {
         try
         {
-            const genAI=getClient();
-            if (!genAI)
+            if (!this.apiKey)
             {
-                throw new Error('Gemini AI not initialized - API key missing');
+                return "I'm sorry, I'm not available right now. Please try again later.";
             }
 
-            // Convert messages to text prompt
-            const prompt=messages.map(msg =>
-            {
-                const role=msg.role==='model'? 'AI':'User';
-                const content=msg.content||msg.parts?.[0]?.text||'';
-                return `${role}: ${content}`;
-            }).join('\n');
+            // Build messages array for Groq
+            const groqMessages=[
+                {role: 'system', content: systemPrompt},
+                ...messages.map(msg => ({
+                    role: msg.role==='user'? 'user':'assistant',
+                    content: msg.content
+                }))
+            ];
 
-            const response=await genAI.models.generateContent({
-                model: "gemini-2.0-flash",
-                contents: prompt,
-                config: {
+            const completion=await axios.post(
+                'https://api.groq.com/openai/v1/chat/completions',
+                {
+                    messages: groqMessages,
+                    model: 'llama-3.3-70b-versatile',
                     temperature: 0.7,
-                    maxOutputTokens: 2048,
+                    max_tokens: 1500,
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${this.apiKey}`
+                    }
                 }
-            });
+            );
 
-            return response.text||"I apologize, but I'm having trouble generating a response.";
+            const response=completion.data.choices[0]?.message?.content;
+            if (response)
+            {
+                return response;
+            }
+
+            return "I couldn't generate a response. Please try again.";
+
         } catch (error)
         {
-            console.error('Gemini AI Error:', error.message||JSON.stringify(error));
-            return "I apologize, but I'm having trouble generating a response right now. Please try again.";
-        }
-    }
-
-    async generateEmbedding(text)
-    {
-        try
-        {
-            const genAI=getClient();
-            if (!genAI)
+            // Check if it's rate limit error
+            if (error.response?.status===429)
             {
-                throw new Error('Gemini AI not initialized - API key missing');
+                console.warn('⚠️ Groq rate limit exceeded');
+                return "I'm currently experiencing high demand. Please try again in a few moments.";
             }
-
-            const response=await genAI.models.embedContent({
-                model: "text-embedding-004",
-                contents: text
-            });
-
-            // Handle different possible response structures
-            let values=null;
-            if (response.embeddings?.[0]?.values)
-            {
-                values=response.embeddings[0].values;
-            } else if (response.embedding?.values)
-            {
-                values=response.embedding.values;
-            } else if (Array.isArray(response.embeddings?.[0]))
-            {
-                values=response.embeddings[0];
-            } else if (Array.isArray(response.embedding))
-            {
-                values=response.embedding;
-            } else if (Array.isArray(response.values))
-            {
-                values=response.values;
-            } else if (Array.isArray(response))
-            {
-                values=response;
-            }
-
-            if (!Array.isArray(values)||values.length===0)
-            {
-                console.error('Invalid embedding response structure:', response);
-                throw new Error('Failed to generate embeddings - unexpected response format');
-            }
-
-            return values;
-        } catch (error)
-        {
-            console.error('Embedding Generation Error:', error.message||JSON.stringify(error));
-            // Return a zero vector as fallback
-            return new Array(768).fill(0);
+            console.error('Groq AI Error:', error.response?.data||error.message);
+            return "I encountered an error processing your request. Please try again.";
         }
     }
 }
 
-export default new GeminiAIService();
+export default new GroqAIService();
+
+

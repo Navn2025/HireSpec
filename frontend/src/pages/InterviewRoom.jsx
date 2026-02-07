@@ -90,14 +90,10 @@ function InterviewRoom()
             {
                 alert('SECURITY NOTICE\n\n'+
                     'This interview is being monitored for integrity:\n\n'+
-                    'Face detection active\n'+
-                    'Eye tracking and gaze monitoring\n'+
-                    'Tab switching monitored\n'+
-                    'Fullscreen enforced\n'+
-                    'Copy-paste disabled\n'+
-                    'AI-generated code detection\n'+
-                    'Multiple faces detection\n'+
-                    'Secondary camera required (use your phone)\n\n'+
+                    '� Tab switching monitored\n'+
+                    '🖥️ Fullscreen enforced\n'+
+                    '📋 Copy-paste disabled\n'+
+                    '🤖 AI-generated code detection\n\n'+
                     'Violations will be reported and may result in interview termination.\n\n'+
                     'Click OK to accept and continue.');
             }, 1000);
@@ -134,7 +130,7 @@ function InterviewRoom()
             {
                 try
                 {
-                    await fetch(`${import.meta.env.VITE_API_URL||'http://localhost:5000'}/api/proctoring/session`, {
+                    await fetch(`${import.meta.env.VITE_API_URL||'http://localhost:8080'}/api/proctoring/session`, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({
@@ -196,13 +192,19 @@ function InterviewRoom()
             try
             {
                 console.log('Attempting to start proctoring...');
+                // Get userId from query params or session
+                const userId=searchParams.get('userId')||userName;
+                console.log('User ID for identity verification:', userId);
+
                 await proctoringService.startMonitoring(
                     videoRef.current,
                     interviewId,
                     handleViolationDetected,
-                    socketService
+                    socketService,
+                    userId,  // Pass userId for identity verification
+                    {disableFaceDetection: true}  // Disable face detection for recruiter interview
                 );
-                console.log('Proctoring started successfully');
+                console.log('Proctoring started successfully with identity verification');
             } catch (error)
             {
                 console.error('Failed to start proctoring:', error);
@@ -390,20 +392,14 @@ function InterviewRoom()
                         onVideoReady={handleVideoReady}
                     />
 
-                    {/* Secondary Camera Setup (for candidates) */}
-                    {role==='candidate'&&(
-                        <SecondaryCamera
-                            interviewId={interviewId}
-                            userName={userName}
-                            isPhone={false}
-                        />
-                    )}
+                    {/* Secondary Camera removed for recruiter interviews - face detection disabled */}
 
                     {mode==='recruiter'&&role==='recruiter'&&(
                         <ProctoringMonitor
                             interviewId={interviewId}
                             suspicionScore={suspicionScore}
                             integrityScore={integrityScore}
+                            disableFaceDetection={true}
                         />
                     )}
                 </div>
