@@ -1,7 +1,7 @@
 .secondary-camera-setup {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
   padding: 16px;
   margin-bottom: 16px;
 }
@@ -12,14 +12,14 @@
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .setup-header h4 {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary);
 }
 
 .status {
@@ -30,13 +30,13 @@
 }
 
 .status.connected {
-  background: #dcfce7;
-  color: #16a34a;
+  background: rgba(0, 255, 136, 0.2);
+  color: var(--accent-primary);
 }
 
 .status.disconnected {
-  background: #fee2e2;
-  color: #dc2626;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
 }
 
 .connection-methods {
@@ -55,20 +55,20 @@
   margin: 0 0 12px 0;
   font-size: 14px;
   font-weight: 600;
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .method-divider {
   font-weight: 600;
-  color: #cbd5e1;
+  color: var(--text-muted);
   padding: 0 8px;
 }
 
 .qr-container {
   margin-top: 12px;
   padding: 16px;
-  background: #f8fafc;
-  border-radius: 8px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
   display: inline-block;
 }
 
@@ -77,20 +77,20 @@
   width: 200px;
   height: 200px;
   margin: 0 auto;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--border-color);
   border-radius: 4px;
 }
 
 .qr-instruction {
   margin: 8px 0 0 0;
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .method-instruction {
   margin: 8px 0 0 0;
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .connected-info {
@@ -98,8 +98,8 @@
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background: #dcfce7;
-  border-radius: 8px;
+  background: rgba(0, 255, 136, 0.1);
+  border-radius: var(--radius-sm);
   margin-bottom: 16px;
 }
 
@@ -109,8 +109,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #16a34a;
-  color: white;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
   border-radius: 50%;
   font-size: 20px;
   font-weight: bold;
@@ -119,32 +119,32 @@
 .info-text p {
   margin: 0;
   font-weight: 600;
-  color: #16a34a;
+  color: var(--accent-primary);
 }
 
 .info-text small {
-  color: #166534;
+  color: var(--accent-secondary);
 }
 
 .setup-instructions {
-  background: #f8fafc;
+  background: var(--bg-tertiary);
   padding: 12px;
-  border-radius: 6px;
-  border-left: 3px solid #3b82f6;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent-primary);
 }
 
 .setup-instructions h5 {
   margin: 0 0 8px 0;
   font-size: 13px;
   font-weight: 600;
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .setup-instructions ol {
   margin: 0;
   padding-left: 20px;
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .setup-instructions li {
@@ -154,7 +154,7 @@
 /* Phone view styles */
 .secondary-camera-phone {
   min-height: 100vh;
-  background: #0f172a;
+  background: var(--bg-primary);
   display: flex;
   flex-direction: column;
   padding: 16px;
@@ -166,19 +166,19 @@
   align-items: center;
   margin-bottom: 16px;
   padding: 12px;
-  background: #1e293b;
-  border-radius: 8px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
 }
 
 .phone-header h2 {
   margin: 0;
-  color: white;
+  color: var(--text-primary);
   font-size: 20px;
 }
 
 .connected-badge {
-  background: #16a34a;
-  color: white;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
   padding: 4px 12px;
   border-radius: 12px;
   font-size: 12px;
@@ -188,7 +188,7 @@
 .phone-video {
   width: 100%;
   flex: 1;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: #000;
   object-fit: cover;
 }
@@ -196,9 +196,9 @@
 .phone-instructions {
   margin-top: 16px;
   padding: 16px;
-  background: #1e293b;
-  border-radius: 8px;
-  color: white;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
 }
 
 .phone-instructions p {
@@ -214,23 +214,24 @@
 
 .phone-instructions li {
   margin-bottom: 6px;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 .phone-instructions .warning {
   margin: 12px 0 0 0;
   padding: 8px;
-  background: #dc2626;
+  background: #ef4444;
   border-radius: 4px;
   text-align: center;
   font-size: 13px;
   font-weight: 600;
+  color: white;
 }
 
 .btn {
   padding: 8px 16px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -238,12 +239,12 @@
 }
 
 .btn-secondary {
-  background: #3b82f6;
-  color: white;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
 }
 
 .btn-secondary:hover {
-  background: #2563eb;
+  background: var(--accent-secondary);
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
 }

@@ -10,6 +10,7 @@ import SecondaryCamera from '../components/SecondaryCamera';
 import ChatPanel from '../components/ChatPanel';
 import QuestionPanel from '../components/QuestionPanel';
 import QuestionSelector from '../components/QuestionSelector';
+import {TargetIcon, DocumentIcon, LockIcon, ChatIcon, AlertIcon, BeakerIcon, PlayIcon, CheckIcon} from '../components/Icons';
 import './InterviewRoom.css';
 
 function InterviewRoom()
@@ -53,7 +54,7 @@ function InterviewRoom()
         // Listen for question updates (from interviewer)
         socket.on('question-update', (data) =>
         {
-            console.log('📝 Question updated:', data.question);
+            console.log('Question updated:', data.question);
             setCurrentQuestion(data.question);
             setCode(data.question.starterCode?.[language]||'');
         });
@@ -61,7 +62,7 @@ function InterviewRoom()
         // Listen for proctoring alerts
         socket.on('proctoring-alert', (data) =>
         {
-            console.log('🔴 Live proctoring alert received:', data.event);
+            console.log('Live proctoring alert received:', data.event);
             setProctoringEvents(prev => [...prev, data.event]);
 
             // Update scores based on severity
@@ -87,16 +88,16 @@ function InterviewRoom()
         {
             setTimeout(() =>
             {
-                alert('⚠️ SECURITY NOTICE ⚠️\n\n'+
+                alert('SECURITY NOTICE\n\n'+
                     'This interview is being monitored for integrity:\n\n'+
-                    '✓ Face detection active\n'+
-                    '✓ Eye tracking and gaze monitoring\n'+
-                    '✓ Tab switching monitored\n'+
-                    '✓ Fullscreen enforced\n'+
-                    '✓ Copy-paste disabled\n'+
-                    '✓ AI-generated code detection\n'+
-                    '✓ Multiple faces detection\n'+
-                    '📱 Secondary camera required (use your phone)\n\n'+
+                    'Face detection active\n'+
+                    'Eye tracking and gaze monitoring\n'+
+                    'Tab switching monitored\n'+
+                    'Fullscreen enforced\n'+
+                    'Copy-paste disabled\n'+
+                    'AI-generated code detection\n'+
+                    'Multiple faces detection\n'+
+                    'Secondary camera required (use your phone)\n\n'+
                     'Violations will be reported and may result in interview termination.\n\n'+
                     'Click OK to accept and continue.');
             }, 1000);
@@ -144,7 +145,7 @@ function InterviewRoom()
                             startTime: new Date(),
                         }),
                     });
-                    console.log('✅ Session registered with proctor dashboard');
+                    console.log('Session registered with proctor dashboard');
                 } catch (error)
                 {
                     console.error('Failed to register session:', error);
@@ -185,7 +186,7 @@ function InterviewRoom()
     // Handle video stream ready - start proctoring
     const handleVideoReady=async (stream) =>
     {
-        console.log('🎥 Video ready callback triggered');
+        console.log('Video ready callback triggered');
         console.log('Role:', role);
         console.log('VideoRef:', videoRef);
         console.log('VideoRef.current:', videoRef.current);
@@ -194,17 +195,17 @@ function InterviewRoom()
         {
             try
             {
-                console.log('🛡️ Attempting to start proctoring...');
+                console.log('Attempting to start proctoring...');
                 await proctoringService.startMonitoring(
                     videoRef.current,
                     interviewId,
                     handleViolationDetected,
                     socketService
                 );
-                console.log('✅ Proctoring started successfully');
+                console.log('Proctoring started successfully');
             } catch (error)
             {
-                console.error('❌ Failed to start proctoring:', error);
+                console.error('Failed to start proctoring:', error);
                 // Don't alert - proctoring might still work partially
                 console.warn('Warning: Some proctoring features may not work. Error:', error.message);
             }
@@ -217,7 +218,7 @@ function InterviewRoom()
     // Handle violation detected
     const handleViolationDetected=(violation, newSuspicionScore) =>
     {
-        console.log('⚠️ Violation detected:', violation);
+        console.log('Violation detected:', violation);
         console.log('New suspicion score:', newSuspicionScore);
 
         setProctoringEvents(prev => [...prev, violation]);
@@ -312,7 +313,7 @@ function InterviewRoom()
             {securityAlert&&(
                 <div className={`security-alert security-alert-${securityAlert.severity}`}>
                     <div className="security-alert-content">
-                        <span className="security-alert-icon">⚠️</span>
+                        <span className="security-alert-icon"><AlertIcon size={24} /></span>
                         <div>
                             <strong>SECURITY VIOLATION</strong>
                             <p>{securityAlert.description}</p>
@@ -334,11 +335,11 @@ function InterviewRoom()
             {/* Header */}
             <div className="interview-header">
                 <div className="interview-info">
-                    <h2>🎯 Interview Room</h2>
+                    <h2><TargetIcon size={20} /> Interview Room</h2>
                     <span className="interview-id">ID: {interviewId?.substring(0, 8)}</span>
                     <span className="badge badge-easy">{mode} mode</span>
                     {role==='candidate'&&(
-                        <span className="badge badge-secure">🔒 Monitored</span>
+                        <span className="badge badge-secure"><LockIcon size={14} /> Monitored</span>
                     )}
                 </div>
                 <div className="interview-controls">
@@ -348,7 +349,7 @@ function InterviewRoom()
                             onClick={handleChangeQuestion}
                             title="Change or select a new question"
                         >
-                            📝 Change Question
+                            <DocumentIcon size={16} /> Change Question
                         </button>
                     )}
                     {role==='candidate'&&(
@@ -366,14 +367,14 @@ function InterviewRoom()
                             }}
                             title="Test proctoring system"
                         >
-                            🧪 Test Alert
+                            <BeakerIcon size={16} /> Test Alert
                         </button>
                     )}
                     <button className="btn btn-secondary" onClick={() => setShowChat(!showChat)}>
-                        💬 Chat
+                        <ChatIcon size={16} /> Chat
                     </button>
                     <button className="btn btn-danger">
-                        ⏹️ End Interview
+                        End Interview
                     </button>
                 </div>
             </div>
@@ -413,7 +414,7 @@ function InterviewRoom()
                         <QuestionPanel question={currentQuestion} />
                     ):(
                         <div className="no-question-placeholder">
-                            <h3>📝 No Question Selected</h3>
+                            <h3><DocumentIcon size={20} /> No Question Selected</h3>
                             {role==='recruiter'? (
                                 <p>Click &quot;Change Question&quot; to select or create a question</p>
                             ):(
@@ -441,14 +442,14 @@ function InterviewRoom()
                                     onClick={handleRunCode}
                                     disabled={loading}
                                 >
-                                    ▶️ Run Code
+                                    <PlayIcon size={16} /> Run Code
                                 </button>
                                 <button
                                     className="btn btn-success"
                                     onClick={handleSubmitCode}
                                     disabled={loading}
                                 >
-                                    ✓ Submit
+                                    <CheckIcon size={16} /> Submit
                                 </button>
                             </div>
                         </div>

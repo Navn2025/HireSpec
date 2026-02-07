@@ -1,5 +1,6 @@
 import {useState, useEffect, useRef} from 'react';
 import socketService from '../services/socket';
+import {PhoneIcon, AlertIcon, ClipboardIcon, CheckIcon} from './Icons';
 import './SecondaryCamera.css';
 
 function SecondaryCamera({interviewId, userName, isPhone=false})
@@ -109,13 +110,13 @@ function SecondaryCamera({interviewId, userName, isPhone=false})
 
         socket.on('secondary-camera-connected', (data) =>
         {
-            console.log('📱 Secondary camera connected');
+            console.log('Secondary camera connected');
             setIsConnected(true);
         });
 
         socket.on('secondary-snapshot', (data) =>
         {
-            console.log('📸 Received snapshot from secondary camera');
+            console.log('Received snapshot from secondary camera');
             // Display snapshot in monitor
         });
     };
@@ -139,8 +140,8 @@ function SecondaryCamera({interviewId, userName, isPhone=false})
         return (
             <div className="secondary-camera-phone">
                 <div className="phone-header">
-                    <h2>📱 Secondary Camera</h2>
-                    {isConnected&&<span className="connected-badge">✓ Connected</span>}
+                    <h2><PhoneIcon size={20} /> Secondary Camera</h2>
+                    {isConnected&&<span className="connected-badge"><CheckIcon size={14} /> Connected</span>}
                 </div>
                 <video
                     ref={videoRef}
@@ -156,7 +157,7 @@ function SecondaryCamera({interviewId, userName, isPhone=false})
                         <li>Your hands and keyboard</li>
                         <li>Room environment</li>
                     </ul>
-                    <p className="warning">⚠️ Keep this window open during the interview</p>
+                    <p className="warning"><AlertIcon size={14} /> Keep this window open during the interview</p>
                 </div>
             </div>
         );
@@ -166,9 +167,9 @@ function SecondaryCamera({interviewId, userName, isPhone=false})
     return (
         <div className="secondary-camera-setup">
             <div className="setup-header">
-                <h4>📱 Secondary Camera Setup</h4>
+                <h4><PhoneIcon size={18} /> Secondary Camera Setup</h4>
                 {isConnected? (
-                    <span className="status connected">✓ Connected</span>
+                    <span className="status connected"><CheckIcon size={14} /> Connected</span>
                 ):(
                     <span className="status disconnected">○ Not Connected</span>
                 )}
@@ -204,7 +205,7 @@ function SecondaryCamera({interviewId, userName, isPhone=false})
                             className="btn btn-secondary"
                             onClick={copyLinkToClipboard}
                         >
-                            📋 Copy Connection Link
+                            <ClipboardIcon size={16} /> Copy Connection Link
                         </button>
                         <p className="method-instruction">Open the link on your phone browser</p>
                     </div>
@@ -213,7 +214,7 @@ function SecondaryCamera({interviewId, userName, isPhone=false})
 
             {isConnected&&(
                 <div className="connected-info">
-                    <div className="info-icon">✓</div>
+                    <div className="info-icon"><CheckIcon size={18} /></div>
                     <div className="info-text">
                         <p>Secondary camera is active</p>
                         <small>Receiving snapshots every 3 seconds</small>

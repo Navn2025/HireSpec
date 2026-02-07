@@ -1,5 +1,6 @@
 import {useState, useEffect, useRef} from 'react';
 import socketService from '../services/socket';
+import {ChatIcon} from './Icons';
 import './ChatPanel.css';
 
 function ChatPanel({interviewId, userName})
@@ -62,7 +63,7 @@ function ChatPanel({interviewId, userName})
     return (
         <div className="chat-panel">
             <div className="chat-header">
-                <h3>💬 Chat</h3>
+                <h3><ChatIcon size={18} /> Chat</h3>
             </div>
 
             <div className="chat-messages">

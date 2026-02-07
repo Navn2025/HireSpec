@@ -1,3 +1,4 @@
+import {FolderIcon} from './Icons';
 import './QuestionPanel.css';
 
 function QuestionPanel({question})
@@ -21,7 +22,7 @@ function QuestionPanel({question})
             </div>
 
             <div className="question-category">
-                <span>📁 Category: {question.category}</span>
+                <span><FolderIcon size={14} /> Category: {question.category}</span>
             </div>
 
             <p className="question-description">{question.description}</p>

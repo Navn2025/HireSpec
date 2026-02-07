@@ -2,13 +2,13 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f5f7fa;
+  background: var(--bg-primary);
 }
 
 .practice-header {
-  background: white;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
   padding: 16px 24px;
-  border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -17,11 +17,12 @@
 .practice-header h2 {
   margin: 0;
   font-size: 20px;
+  color: var(--text-primary);
 }
 
 .question-counter {
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-muted);
   margin-left: 12px;
 }
 
@@ -45,7 +46,7 @@
   align-items: center;
   gap: 12px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-color);
   margin-bottom: 16px;
 }
 
@@ -53,22 +54,24 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
+  color: var(--bg-primary);
 }
 
 .ai-header h3 {
   margin: 0;
   font-size: 16px;
+  color: var(--text-primary);
 }
 
 .ai-header p {
   margin: 0;
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .ai-messages {
@@ -80,16 +83,18 @@
 .message {
   margin-bottom: 16px;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 .message.ai {
-  background: #f1f5f9;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
 }
 
 .message.user {
-  background: #dbeafe;
+  background: rgba(0, 255, 136, 0.1);
   margin-left: 20px;
+  color: var(--text-primary);
 }
 
 .message-content {
@@ -100,7 +105,7 @@
 
 .message-time {
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .ai-input {
@@ -122,6 +127,10 @@
 .question-card {
   max-height: 400px;
   overflow-y: auto;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
 }
 
 .question-header-section {
@@ -134,10 +143,11 @@
 .question-header-section h3 {
   margin: 0;
   font-size: 20px;
+  color: var(--text-primary);
 }
 
 .question-description {
-  color: #475569;
+  color: var(--text-secondary);
   line-height: 1.6;
   margin-bottom: 20px;
 }
@@ -149,16 +159,17 @@
 .examples h4 {
   font-size: 14px;
   margin-bottom: 12px;
-  color: #334155;
+  color: var(--text-secondary);
 }
 
 .example {
-  background: #f8fafc;
+  background: var(--bg-tertiary);
   padding: 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   margin-bottom: 8px;
   font-size: 13px;
   font-family: monospace;
+  color: var(--text-primary);
 }
 
 .question-actions {
@@ -172,21 +183,25 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
 }
 
 .output-section {
   height: 180px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
 }
 
 .output-header {
   padding: 8px 16px;
-  background: #f8fafc;
+  background: var(--bg-tertiary);
   font-weight: 600;
   font-size: 13px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
 }
 
 .output-content {
@@ -194,8 +209,8 @@
   padding: 16px;
   margin: 0;
   overflow: auto;
-  background: #1e293b;
-  color: #e2e8f0;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-family: monospace;
   font-size: 13px;
   line-height: 1.5;
@@ -207,5 +222,5 @@
   justify-content: center;
   height: 100vh;
   font-size: 20px;
-  color: #64748b;
+  color: var(--text-muted);
 }

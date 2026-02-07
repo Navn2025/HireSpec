@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {DocumentIcon, BookIcon, RobotIcon, CheckCircleIcon, RefreshIcon, FolderIcon, SparklesIcon, LoadingIcon} from './Icons';
 import './QuestionSelector.css';
 
 const API_URL=import.meta.env.VITE_API_URL||'http://localhost:5000';
@@ -166,7 +167,7 @@ function QuestionSelector({onQuestionSelected, onClose})
         <div className="question-selector-overlay">
             <div className="question-selector-modal">
                 <div className="modal-header">
-                    <h2>📝 Select or Create Question</h2>
+                    <h2><DocumentIcon size={20} /> Select or Create Question</h2>
                     <button className="close-btn" onClick={onClose}>&times;</button>
                 </div>
 
@@ -175,19 +176,19 @@ function QuestionSelector({onQuestionSelected, onClose})
                         className={mode==='library'? 'active':''}
                         onClick={() => {setMode('library'); loadLibraryQuestions();}}
                     >
-                        📚 Question Library
+                        <BookIcon size={16} /> Question Library
                     </button>
                     <button
                         className={mode==='ai'? 'active':''}
                         onClick={() => setMode('ai')}
                     >
-                        🤖 AI Generate
+                        <RobotIcon size={16} /> AI Generate
                     </button>
                     <button
                         className={mode==='custom'? 'active':''}
                         onClick={() => setMode('custom')}
                     >
-                        ✏️ Custom Question
+                        <DocumentIcon size={16} /> Custom Question
                     </button>
                 </div>
 
@@ -210,7 +211,7 @@ function QuestionSelector({onQuestionSelected, onClose})
                                                     {q.difficulty}
                                                 </span>
                                             </div>
-                                            <p className="question-category">📁 {q.category}</p>
+                                            <p className="question-category"><FolderIcon size={14} /> {q.category}</p>
                                             <p className="question-preview">{q.description}</p>
                                             <button
                                                 className="select-btn"
@@ -228,7 +229,7 @@ function QuestionSelector({onQuestionSelected, onClose})
                     {/* AI GENERATION MODE */}
                     {mode==='ai'&&(
                         <div className="ai-mode">
-                            <h3>🤖 Generate Question with AI</h3>
+                            <h3><RobotIcon size={20} /> Generate Question with AI</h3>
 
                             <div className="form-group">
                                 <label>Difficulty Level</label>
@@ -276,7 +277,7 @@ function QuestionSelector({onQuestionSelected, onClose})
                                 onClick={handleGenerateAI}
                                 disabled={loading}
                             >
-                                {loading? '⏳ Generating...':'✨ Generate Question'}
+                                {loading? <><LoadingIcon size={16} /> Generating...</>:<><SparklesIcon size={16} /> Generate Question</>}
                             </button>
 
                             {generatedQuestion&&(
@@ -304,13 +305,13 @@ function QuestionSelector({onQuestionSelected, onClose})
                                         className="use-question-btn"
                                         onClick={handleUseGeneratedQuestion}
                                     >
-                                        ✅ Use This Question
+                                        <CheckCircleIcon size={16} /> Use This Question
                                     </button>
                                     <button
                                         className="regenerate-btn"
                                         onClick={handleGenerateAI}
                                     >
-                                        🔄 Regenerate
+                                        <RefreshIcon size={16} /> Regenerate
                                     </button>
                                 </div>
                             )}
@@ -320,7 +321,7 @@ function QuestionSelector({onQuestionSelected, onClose})
                     {/* CUSTOM MODE */}
                     {mode==='custom'&&(
                         <div className="custom-mode">
-                            <h3>✏️ Create Your Own Question</h3>
+                            <h3><DocumentIcon size={20} /> Create Your Own Question</h3>
 
                             <div className="form-group">
                                 <label>Question Title *</label>
@@ -440,7 +441,7 @@ function QuestionSelector({onQuestionSelected, onClose})
                                 onClick={handleCreateCustom}
                                 disabled={loading}
                             >
-                                {loading? '⏳ Creating...':'✅ Create & Use Question'}
+                                {loading? <><LoadingIcon size={16} /> Creating...</>:<><CheckCircleIcon size={16} /> Create & Use Question</>}
                             </button>
                         </div>
                     )}

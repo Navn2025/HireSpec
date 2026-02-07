@@ -1,6 +1,7 @@
 import {useState, useEffect, useRef} from 'react';
 import Peer from 'simple-peer';
 import socketService from '../services/socket';
+import {VideoIcon, VideoOffIcon, MicIcon, MicOffIcon, LoadingIcon} from './Icons';
 import './VideoPanel.css';
 
 function VideoPanel({interviewId, userName, role, videoRef, onVideoReady})
@@ -10,8 +11,10 @@ function VideoPanel({interviewId, userName, role, videoRef, onVideoReady})
     const [isVideoOn, setIsVideoOn]=useState(true);
     const [isAudioOn, setIsAudioOn]=useState(true);
     const [remotePeerId, setRemotePeerId]=useState(null);
+    const [isLoading, setIsLoading]=useState(true);
 
-    const localVideoRef=videoRef||useRef();
+    const internalVideoRef=useRef();
+    const localVideoRef=videoRef||internalVideoRef;
     const remoteVideoRef=useRef();
     const peerRef=useRef();
 
@@ -54,17 +57,18 @@ function VideoPanel({interviewId, userName, role, videoRef, onVideoReady})
                 // Wait for video to load before starting proctoring
                 const handleLoadedMetadata=() =>
                 {
-                    console.log('📹 Video metadata loaded');
+                    console.log('Video metadata loaded');
                     console.log('Video dimensions:', localVideoRef.current.videoWidth, 'x', localVideoRef.current.videoHeight);
                     console.log('Video ready state:', localVideoRef.current.readyState);
+                    setIsLoading(false);
 
                     // Ensure video is playing
                     localVideoRef.current.play().then(() =>
                     {
-                        console.log('✅ Video playing');
+                        console.log('Video playing');
                         if (onVideoReady)
                         {
-                            console.log('🔔 Calling onVideoReady callback');
+                            console.log('Calling onVideoReady callback');
                             onVideoReady(stream);
                         }
                     }).catch(err =>
@@ -90,6 +94,7 @@ function VideoPanel({interviewId, userName, role, videoRef, onVideoReady})
         } catch (error)
         {
             console.error('Error accessing media devices:', error);
+            setIsLoading(false);
             alert('Camera access denied. Please allow camera permissions to join the interview.');
         }
     };
@@ -221,20 +226,27 @@ function VideoPanel({interviewId, userName, role, videoRef, onVideoReady})
     return (
         <div className="video-panel card">
             <div className="video-header">
-                <h3>📹 Video Call</h3>
+                <h3><VideoIcon size={18} /> Video Call</h3>
             </div>
 
             <div className="videos">
                 {/* Local Video */}
                 <div className="video-container local">
+                    {isLoading&&(
+                        <div className="waiting">
+                            <div className="waiting-icon"><LoadingIcon size={24} /></div>
+                            <p>Starting camera...</p>
+                        </div>
+                    )}
                     <video
                         ref={localVideoRef}
                         autoPlay
                         playsInline
                         muted
                         className="video"
+                        style={{display: isLoading? 'none':'block'}}
                     />
-                    <div className="video-label">You ({userName})</div>
+                    {!isLoading&&<div className="video-label">You ({userName})</div>}
                 </div>
 
                 {/* Remote Video */}
@@ -251,7 +263,7 @@ function VideoPanel({interviewId, userName, role, videoRef, onVideoReady})
                         </>
                     ):(
                         <div className="waiting">
-                            <div className="waiting-icon">⏳</div>
+                            <div className="waiting-icon"><LoadingIcon size={24} /></div>
                             <p>Waiting for other participant...</p>
                         </div>
                     )}
@@ -264,14 +276,14 @@ function VideoPanel({interviewId, userName, role, videoRef, onVideoReady})
                     onClick={toggleVideo}
                     title="Toggle Video"
                 >
-                    {isVideoOn? '📹':'📹❌'}
+                    {isVideoOn? <VideoIcon size={18} />:<VideoOffIcon size={18} />}
                 </button>
                 <button
                     className={`control-btn ${!isAudioOn? 'off':''}`}
                     onClick={toggleAudio}
                     title="Toggle Audio"
                 >
-                    {isAudioOn? '🎤':'🎤❌'}
+                    {isAudioOn? <MicIcon size={18} />:<MicOffIcon size={18} />}
                 </button>
             </div>
         </div>

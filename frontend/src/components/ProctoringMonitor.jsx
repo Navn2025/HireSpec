@@ -1,4 +1,5 @@
 import {useState, useEffect} from 'react';
+import {ShieldIcon, NoFaceIcon, UsersIcon, EyeIcon, SleepIcon, TabSwitchIcon, FullscreenExitIcon, ClipboardIcon, RobotIcon, DocumentIcon, AlertIcon, CheckCircleIcon, XIcon, UserIcon, PhoneIcon, RecordIcon} from './Icons';
 import './ProctoringMonitor.css';
 
 function ProctoringMonitor({interviewId, events, suspicionScore=0, integrityScore: propIntegrityScore})
@@ -72,18 +73,18 @@ function ProctoringMonitor({interviewId, events, suspicionScore=0, integrityScor
     const formatEventType=(event) =>
     {
         const typeMap={
-            'no_face': '😶 No Face Detected',
-            'multiple_faces': '👥 Multiple Faces',
-            'looking_away': '👁️ Looking Away',
-            'eyes_closed': '😴 Eyes Closed',
-            'window_blur': '🪟 Window Focus Lost',
-            'tab_switch': '🔄 Tab Switched',
-            'fullscreen_exit': '📺 Fullscreen Exited',
-            'copy_paste_attempt': '📋 Copy/Paste Blocked',
-            'ai_generated_code': '🤖 AI-Generated Code',
-            'large_paste': '📄 Large Code Paste',
-            'suspicious_typing': '⌨️ Suspicious Typing',
-            'auto_terminate': '⛔ Interview Terminated',
+            'no_face': 'No Face Detected',
+            'multiple_faces': 'Multiple Faces',
+            'looking_away': 'Looking Away',
+            'eyes_closed': 'Eyes Closed',
+            'window_blur': 'Window Focus Lost',
+            'tab_switch': 'Tab Switched',
+            'fullscreen_exit': 'Fullscreen Exited',
+            'copy_paste_attempt': 'Copy/Paste Blocked',
+            'ai_generated_code': 'AI-Generated Code',
+            'large_paste': 'Large Code Paste',
+            'suspicious_typing': 'Suspicious Typing',
+            'auto_terminate': 'Interview Terminated',
         };
         return typeMap[event.type]||event.description||event.type||'Unknown Event';
     };
@@ -91,7 +92,7 @@ function ProctoringMonitor({interviewId, events, suspicionScore=0, integrityScor
     return (
         <div className="proctoring-monitor card">
             <div className="proctoring-header">
-                <h3>🛡️ Proctoring Monitor</h3>
+                <h3><ShieldIcon size={18} /> Proctoring Monitor</h3>
             </div>
 
             <div className="integrity-score">
@@ -124,7 +125,7 @@ function ProctoringMonitor({interviewId, events, suspicionScore=0, integrityScor
                 <div className="stat">
                     <div className="stat-label">Status</div>
                     <div className="stat-value status">
-                        {integrityScore>=80? '✅ Good':integrityScore>=60? '⚠️ Warning':'❌ Risk'}
+                        {integrityScore>=80? <><CheckCircleIcon size={16} /> Good</>:integrityScore>=60? <><AlertIcon size={16} /> Warning</>:<><XIcon size={16} /> Risk</>}
                     </div>
                 </div>
             </div>
@@ -132,23 +133,23 @@ function ProctoringMonitor({interviewId, events, suspicionScore=0, integrityScor
             <div className="monitoring-features">
                 <div className="features-label">Active Monitoring</div>
                 <div className="feature-badges">
-                    <span className="feature-badge" title="Face detection and tracking">👤 Face</span>
-                    <span className="feature-badge" title="Eye tracking and gaze detection">👁️ Eyes</span>
-                    <span className="feature-badge" title="AI-generated code detection">🤖 AI</span>
-                    <span className="feature-badge" title="Tab and window monitoring">🪟 Focus</span>
-                    <span className="feature-badge" title="Secondary camera (phone)">📱 Camera 2</span>
+                    <span className="feature-badge" title="Face detection and tracking"><UserIcon size={14} /> Face</span>
+                    <span className="feature-badge" title="Eye tracking and gaze detection"><EyeIcon size={14} /> Eyes</span>
+                    <span className="feature-badge" title="AI-generated code detection"><RobotIcon size={14} /> AI</span>
+                    <span className="feature-badge" title="Tab and window monitoring"><TabSwitchIcon size={14} /> Focus</span>
+                    <span className="feature-badge" title="Secondary camera (phone)"><PhoneIcon size={14} /> Camera 2</span>
                 </div>
             </div>
 
             <div className="events-list">
                 <div className="events-header">
                     Recent Events
-                    {newEventPulse&&<span className="live-indicator">🔴 LIVE</span>}
+                    {newEventPulse&&<span className="live-indicator"><RecordIcon size={12} color="#ef4444" /> LIVE</span>}
                 </div>
 
                 {events.length===0? (
                     <div className="no-events">
-                        <span>✓</span>
+                        <span><CheckCircleIcon size={24} /></span>
                         <p>No violations detected</p>
                     </div>
                 ):(
